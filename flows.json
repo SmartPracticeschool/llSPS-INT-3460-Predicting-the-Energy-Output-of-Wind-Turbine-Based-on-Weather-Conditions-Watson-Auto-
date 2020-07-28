@@ -1,0 +1,217 @@
+[
+    {
+        "id": "51e6a3db.8a08dc",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "bb783f03.d31db",
+        "type": "function",
+        "z": "51e6a3db.8a08dc",
+        "name": "PreToken",
+        "func": "global.set(\"ab\",msg.payload.ab)\nglobal.set(\"cd\",msg.payload.cd)\nglobal.set(\"ef\",msg.payload.ef)\nglobal.set(\"gh\",msg.payload.gh)\nvar apikey=\"vMM6tFHDHWWMphpTHMVjalC8u7oidUyCYtmOYnnFSdY7\";\nmsg.headers={\"content-type\":\"application/x-www-form-urlencoded\"}\nmsg.payload={\"grant_type\":\"urn:ibm:params:oauth:grant-type:apikey\",\"apikey\":apikey}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 160,
+        "y": 400,
+        "wires": [
+            [
+                "1979ea68.a8dba6"
+            ]
+        ]
+    },
+    {
+        "id": "1979ea68.a8dba6",
+        "type": "http request",
+        "z": "51e6a3db.8a08dc",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://iam.cloud.ibm.com/identity/token",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 270,
+        "y": 520,
+        "wires": [
+            [
+                "3d94fa1f.784026"
+            ]
+        ]
+    },
+    {
+        "id": "470ac858.28a0e8",
+        "type": "debug",
+        "z": "51e6a3db.8a08dc",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "3d94fa1f.784026",
+        "type": "function",
+        "z": "51e6a3db.8a08dc",
+        "name": "Pre Prediction",
+        "func": "var ab=global.get('ab')\nvar cd=global.get('cd')\nvar ef=global.get('ef')\nvar gh=global.get('gh')\nvar token=msg.payload.access_token\nvar instance_id=\"9b632d6a-5f09-4c8a-8363-32ea2c34e937\"\nmsg.headers={'Content-Type': 'application/json',\"Authorization\":\"Bearer \"+token,\"ML-Instance-ID\":instance_id}\nmsg.payload={\"input_data\": [{\"fields\": [\"Date/Time\", \"LV ActivePower\", \"Wind Speed\", \"Wind Direction\"], \"values\": [[ab,cd,ef,gh]]}]}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 380,
+        "y": 660,
+        "wires": [
+            [
+                "ce90ed68.4f33d"
+            ]
+        ]
+    },
+    {
+        "id": "ce90ed68.4f33d",
+        "type": "http request",
+        "z": "51e6a3db.8a08dc",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://us-south.ml.cloud.ibm.com/v4/deployments/395b2d2a-cfff-450a-9e7a-bf9d8ce850d6/predictions",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 510,
+        "y": 520,
+        "wires": [
+            [
+                "d1e8f013.27175"
+            ]
+        ]
+    },
+    {
+        "id": "d9ee8a55.fbda98",
+        "type": "ui_form",
+        "z": "51e6a3db.8a08dc",
+        "name": "",
+        "label": "",
+        "group": "ab5f824b.92e88",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "options": [
+            {
+                "label": "Date/Time",
+                "value": "ab",
+                "type": "text",
+                "required": true,
+                "rows": null
+            },
+            {
+                "label": "LV ActivePower",
+                "value": "cd",
+                "type": "number",
+                "required": true,
+                "rows": null
+            },
+            {
+                "label": "Wind Speed",
+                "value": "ef",
+                "type": "number",
+                "required": true,
+                "rows": null
+            },
+            {
+                "label": "Wind direction",
+                "value": "gh",
+                "type": "multiline",
+                "required": true,
+                "rows": 3
+            }
+        ],
+        "formValue": {
+            "ab": "",
+            "cd": "",
+            "ef": "",
+            "gh": ""
+        },
+        "payload": "",
+        "submit": "submit",
+        "cancel": "cancel",
+        "topic": "",
+        "x": 71,
+        "y": 522.9999952316284,
+        "wires": [
+            [
+                "bb783f03.d31db"
+            ]
+        ]
+    },
+    {
+        "id": "17a962d.087a99d",
+        "type": "ui_text",
+        "z": "51e6a3db.8a08dc",
+        "group": "ab5f824b.92e88",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Predicted Energy (kWh)",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 790,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "d1e8f013.27175",
+        "type": "function",
+        "z": "51e6a3db.8a08dc",
+        "name": "",
+        "func": "msg.payload=msg.payload.predictions[0].values[0][0]\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 680,
+        "y": 460,
+        "wires": [
+            [
+                "17a962d.087a99d",
+                "470ac858.28a0e8"
+            ]
+        ]
+    },
+    {
+        "id": "ab5f824b.92e88",
+        "type": "ui_group",
+        "z": "",
+        "name": "Predict output",
+        "tab": "91e0eacf.b9b7a8",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "91e0eacf.b9b7a8",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
